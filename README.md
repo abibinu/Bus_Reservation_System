@@ -174,7 +174,7 @@ Clean, formatted console output
 
 🖥️ Main Menu Structure (User Interface)
 
-Your main.c will show:
+#Your main.c will show:
 
 ========== BUS RESERVATION SYSTEM ==========
 1. Insert Records
@@ -192,7 +192,7 @@ Example: Insertion Menu
 3. Insert Reservation
 4. Back to Main Menu
 
-🔁 Reservation Workflow
+#🔁 Reservation Workflow
 
 User selects Book Reservation
 
@@ -206,7 +206,7 @@ Seats reduced from the bus
 
 Reservation stored in reservation.dat
 
-🧪 Testing Checklist
+#🧪 Testing Checklist
 
 Before final submission ensure:
 
@@ -226,17 +226,3 @@ Before final submission ensure:
 
  All menus link correctly
 
-🚀 Future Enhancements (Optional)
-
-You may include in your Viva:
-
-Search by Bus ID / Passenger Name
-
-Sort buses by fare or route
-
-Seat availability chart
-
-Export reports to text files
-
-Add authentication (admin login)
-# Bus_Reservation_System
