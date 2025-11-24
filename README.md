@@ -81,13 +81,6 @@ Common issues & troubleshooting
 - If the program can't find `*.dat` files, it will create them when you add records.
 - If you get unexpected behavior in Turbo C++ (IDE-specific), make sure all files are visible to the project and the working directory is set correctly in the IDE.
 
-Improvements you might try
---------------------------
-- Replace binary files with a text/CSV or JSON format for portability and easier debugging.
-- Add input validation (e.g., blocking overly long strings, ensuring seat counts are positive).
-- Add CSV export/import to move test data between environments.
-- Add reports (e.g., reservations per bus, revenue reports).
-
 License / Attribution
 ---------------------
 This is a simple learning project. There is no specific license file included.
