@@ -2,9 +2,35 @@
 #define HEADER_H
 
 #include <stdio.h>
-#include <conio.h>
 #include <string.h>
 #include <stdlib.h>
+
+// Provide minimal cross-platform replacements for Turbo C functions.
+// When compiling with Turbo C / Borland C, prefer the system <conio.h>.
+#if defined(__BORLANDC__) || defined(__TURBOC__)
+#include <conio.h>
+#else
+    // Not Turbo: provide fallbacks for modern compilers/platforms.
+    #ifdef _WIN32
+        #include <conio.h>
+        static void clrscr(void) { system("cls"); }
+    #else
+        #include <termios.h>
+        #include <unistd.h>
+        static int getch(void) {
+                struct termios oldt, newt;
+                int ch;
+                tcgetattr(STDIN_FILENO, &oldt);
+                newt = oldt;
+                newt.c_lflag &= ~(ICANON | ECHO);
+                tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+                ch = getchar();
+                tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+                return ch;
+        }
+        static void clrscr(void) { printf("\033[H\033[J"); fflush(stdout); }
+    #endif
+#endif
 
 // ================= STRUCT DEFINITIONS =================
 
@@ -61,5 +87,10 @@ void insertionMenu();
 void deletionMenu();
 void updationMenu();
 void viewMenu();
+
+// UI helpers
+void print_banner(const char *title);
+void print_menu(const char *options[], int count);
+void pause_msg(const char *msg);
 
 #endif

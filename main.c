@@ -1,21 +1,27 @@
 #include "header.h"
 
-void main() {
+int main() {
     int choice;
 
     while (1) {
-        clrscr();
-        printf("\n==========================================");
-        printf("\n        BUS RESERVATION SYSTEM");
-        printf("\n==========================================");
-        printf("\n1. Insert Records");
-        printf("\n2. Delete Records");
-        printf("\n3. Update Records");
-        printf("\n4. View Records");
-        printf("\n5. Exit");
+        const char *menu[] = {
+            "1. Manage - Add Records",
+            "2. Manage - Remove Records",
+            "3. Manage - Update Records",
+            "4. Display Records",
+            "5. Exit"
+        };
 
-        printf("\n\nEnter your choice: ");
-        scanf("%d", &choice);
+        print_banner("BUS RESERVATION SYSTEM");
+        print_menu(menu, sizeof(menu) / sizeof(menu[0]));
+
+        printf("Enter your choice: ");
+        if (scanf("%d", &choice) != 1) {
+            int c; while ((c = getchar()) != '\n' && c != EOF) {};
+            printf("Invalid input. Please enter a number.\n");
+            pause_msg(NULL);
+            continue;
+        }
 
         switch(choice) {
             case 1: insertionMenu(); break;
@@ -24,8 +30,9 @@ void main() {
             case 4: viewMenu(); break;
             case 5: exit(0);
             default:
-                printf("\nInvalid choice!");
-                getch();
+                printf("\nInvalid choice!\n");
+                pause_msg(NULL);
         }
     }
+    return 0;
 }

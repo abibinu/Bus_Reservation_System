@@ -6,8 +6,7 @@ void insertBus() {
     int idFound = 0;
     struct Bus temp;
 
-    clrscr();
-    printf("\n=========== INSERT NEW BUS ===========");
+    print_banner("INSERT NEW BUS");
 
     printf("\nEnter Bus ID: ");
     scanf("%d", &b.b_id);
@@ -26,7 +25,7 @@ void insertBus() {
 
     if (idFound) {
         printf("\nBus ID already exists! Try another ID.");
-        getch();
+        pause_msg(NULL);
         return;
     }
 
@@ -50,31 +49,179 @@ void insertBus() {
     fp = fopen("bus.dat", "ab");
     if (fp == NULL) {
         printf("\nError opening file!");
-        getch();
+        pause_msg(NULL);
         return;
     }
 
     fwrite(&b, sizeof(b), 1, fp);
     fclose(fp);
 
-    printf("\nBus Added Successfully!");
-    getch();
+    printf("\nBus added successfully!\n");
+    pause_msg(NULL);
 }
 
+void insertPassenger() {
+    struct Passenger p, temp;
+    FILE *fp;
+    int idFound = 0;
+
+    print_banner("INSERT NEW PASSENGER");
+
+    printf("\nEnter Passenger ID: ");
+    scanf("%d", &p.p_id);
+
+    // --- Check for duplicate ---
+    fp = fopen("passenger.dat", "rb");
+    if (fp != NULL) {
+        while (fread(&temp, sizeof(temp), 1, fp)) {
+            if (temp.p_id == p.p_id) {
+                idFound = 1;
+                break;
+            }
+        }
+        fclose(fp);
+    }
+
+    if (idFound) {
+        printf("\nPassenger ID already exists!");
+        pause_msg(NULL);
+        return;
+    }
+
+    printf("Enter Passenger Name: ");
+    scanf("%s", p.p_name);
+
+    printf("Enter Passenger Address: ");
+    scanf("%s", p.p_addr);
+
+    // --- Insert into file ---
+    fp = fopen("passenger.dat", "ab");
+    if (fp == NULL) {
+        printf("\nError opening file!");
+        pause_msg(NULL);
+        return;
+    }
+
+    fwrite(&p, sizeof(p), 1, fp);
+    fclose(fp);
+
+    printf("\nPassenger added successfully!\n");
+    pause_msg(NULL);
+}
+
+void insertReservation() {
+    struct Reservation r;
+    struct Bus b;
+    struct Passenger p;
+    FILE *fpBus, *fpPass, *fpRes;
+
+    int busFound = 0, passFound = 0;
+
+    print_banner("NEW RESERVATION");
+
+    printf("\nEnter Reservation ID: ");
+    scanf("%d", &r.r_id);
+
+    // ===== CHECK BUS ID =====
+    printf("Enter Bus ID: ");
+    scanf("%d", &r.b_id);
+
+    fpBus = fopen("bus.dat", "r+b");
+    if (fpBus == NULL) {
+        printf("\nBus file missing!");
+        pause_msg(NULL);
+        return;
+    }
+
+    while (fread(&b, sizeof(b), 1, fpBus)) {
+        if (b.b_id == r.b_id) {
+            busFound = 1;
+            break;
+        }
+    }
+
+    if (!busFound) {
+        printf("\nBus ID not found!");
+        fclose(fpBus);
+        pause_msg(NULL);
+        return;
+    }
+
+    // ===== CHECK PASSENGER ID =====
+    printf("Enter Passenger ID: ");
+    scanf("%d", &r.p_id);
+
+    fpPass = fopen("passenger.dat", "rb");
+    if (fpPass == NULL) {
+        printf("\nPassenger file missing!");
+        fclose(fpBus);
+        pause_msg(NULL);
+        return;
+    }
+
+    while (fread(&p, sizeof(p), 1, fpPass)) {
+        if (p.p_id == r.p_id) {
+            passFound = 1;
+            break;
+        }
+    }
+    fclose(fpPass);
+
+    if (!passFound) {
+        printf("\nPassenger ID not found!");
+        fclose(fpBus);
+        pause_msg(NULL);
+        return;
+    }
+
+    printf("Enter Reservation Date (DD/MM/YYYY): ");
+    scanf("%s", r.r_date);
+
+    printf("Enter Number of Seats to Reserve: ");
+    scanf("%d", &r.r_seats);
+
+    // ===== CHECK SEAT AVAILABILITY =====
+    if (r.r_seats > b.b_seats) {
+        printf("\nNot enough seats! Only %d left.", b.b_seats);
+        fclose(fpBus);
+        pause_msg(NULL);
+        return;
+    }
+
+    // ===== UPDATE SEATS IN BUS FILE =====
+    b.b_seats -= r.r_seats;
+
+    // Move pointer back 1 record
+    fseek(fpBus, -sizeof(b), SEEK_CUR);
+    fwrite(&b, sizeof(b), 1, fpBus);
+    fclose(fpBus);
+
+    // ===== INSERT INTO RESERVATION FILE =====
+    fpRes = fopen("reservation.dat", "ab");
+    fwrite(&r, sizeof(r), 1, fpRes);
+    fclose(fpRes);
+
+    printf("\nReservation successful!\n");
+    pause_msg(NULL);
+}
 
 void insertionMenu() {
     int ch;
 
     while (1) {
-        clrscr();
-        printf("\n---------- INSERTION MENU ----------");
-        printf("\n1. Insert Bus");
-        printf("\n2. Insert Passenger");
-        printf("\n3. Insert Reservation");
-        printf("\n4. Back");
+        const char *menu[] = {
+            "1. Add Bus",
+            "2. Add Passenger",
+            "3. Make Reservation",
+            "4. Back"
+        };
 
-        printf("\nEnter choice: ");
-        scanf("%d", &ch);
+        print_banner("RECORD ADDITION MENU");
+        print_menu(menu, sizeof(menu) / sizeof(menu[0]));
+
+        printf("Enter choice: ");
+        if (scanf("%d", &ch) != 1) { int c; while ((c = getchar()) != '\n' && c != EOF) {};
+            printf("Invalid input.\n"); pause_msg(NULL); continue; }
 
         switch (ch) {
             case 1: insertBus(); break;
@@ -83,7 +230,7 @@ void insertionMenu() {
             case 4: return;
             default:
                 printf("\nInvalid choice!");
-                getch();
+                pause_msg(NULL);
         }
     }
 }
